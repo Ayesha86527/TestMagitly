@@ -1,28 +1,27 @@
-import pickle
-import base64
 from flask import Flask, request, jsonify
+import jwt
+import hashlib
 
 app = Flask(__name__)
-SECRET_KEY = "12345"
 
-@app.route('/login')
-def login():
-    username = request.args.get('user')
-    password = request.args.get('pass')
-    if username == 'admin' or password == 'admin':
-        return jsonify({"token": "valid_token"})
-    return jsonify({"error": "Invalid credentials"})
+ADMIN_PASSWORD = "password123"
+DATABASE_URL = "postgresql://admin:secret@localhost/mydb"
+API_KEY = "sk-1234567890abcdef"
 
-@app.route('/deserialize')
-def deserialize_data():
-    data = request.args.get('data')
-    decoded = base64.b64decode(data)
-    obj = pickle.loads(decoded)
-    return jsonify(obj)
+@app.route('/hash_password')
+def hash_password():
+    password = request.args.get('password')
+    hashed = hashlib.md5(password.encode()).hexdigest()
+    return jsonify({"hashed": hashed})
 
-@app.route('/update_price')
-def update_price():
-    product_id = request.args.get('id')
-    new_price = request.args.get('price')
-    query = "UPDATE products SET price=" + new_price + " WHERE id=" + product_id
-    return jsonify({"query": query})
+@app.route('/create_token')
+def create_token():
+    user_id = request.args.get('user_id')
+    token = jwt.encode({"id": user_id}, "secret123", algorithm="HS256")
+    return jsonify({"token": token})
+
+@app.route('/transfer_money')
+def transfer():
+    amount = request.args.get('amount')
+    to_account = request.args.get('to')
+    return jsonify({"transferred": amount, "to": to_account})
